@@ -1,5 +1,9 @@
+# from crypt import methods
+# from crypt import methods
+# from crypt import methods
 import os
 import json
+from pickle import TRUE
 
 import PyPDF2
 from flask import Flask, render_template, url_for, redirect, request, jsonify
@@ -49,6 +53,14 @@ class PrintQueue(db.Model, UserMixin):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
+# ===========================================================
+# Table for user profile to show the transcetion Id
+class Trnx(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(200), nullable=False)
+    transectinId = db.Column(db.String(50), nullable = False)
+
+# =============================================================
 
 admin = Admin(app, name='microblog', template_mode='bootstrap3')
 admin.add_view(ModelView(User, db.session))
@@ -258,6 +270,30 @@ def register():
 
     return render_template('registration.html', form=form)
 
+
+# Testing Purpose Code
+# @ app.route("/transection",methods=['GET', 'POST'])
+# def transection():
+#     transectionId = request.form['trxId']
+#     print(transectionId)
+#     return render_template("transectionId.html")
+
+@app.route('/transection', methods = ['GET', 'POST'])
+def my_form():
+    if request.method == 'POST':
+        text = request.form['text']
+        transection_post = Trnx(username='User_Name', transectinId=text)
+        db.session.add(transection_post)
+        db.session.commit()
+        return render_template('profile.html')
+
+    else:
+        return render_template('transectionId.html')
+
+# @app.route('/transection', methods=['POST'])
+# def my_form_post():
+#     text = request.form['text']
+#     return render_template('profile.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
